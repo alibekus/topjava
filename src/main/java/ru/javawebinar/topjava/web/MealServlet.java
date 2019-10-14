@@ -64,6 +64,7 @@ public class MealServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        request.setAttribute("userId", authUserId());
         switch (action == null ? "all" : action) {
             case "delete":
                 int id = getId(request);
@@ -103,7 +104,6 @@ public class MealServlet extends HttpServlet {
                 logger.info("getAll of userId {} ", authUserId());
                 final List<MealTo> tos = MealsUtil.getTos(controller.getAll(authUserId()), MealsUtil.DEFAULT_CALORIES_PER_DAY);
                 tos.stream().forEach(to -> logger.info(to.toString()));
-                request.setAttribute("userId", authUserId());
                 request.setAttribute("meals",
                         tos);
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
