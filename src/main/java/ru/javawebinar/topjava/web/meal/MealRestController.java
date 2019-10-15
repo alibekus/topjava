@@ -7,7 +7,6 @@ import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealTo;
-import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,14 +34,7 @@ public class MealRestController {
 
     public Meal get(int id) {
         logger.info("get meal {} ", id);
-        Meal meal = null;
-        try {
-            meal = service.get(id, authUserId());
-        } catch (NotFoundException exp) {
-            logger.error(exp.getLocalizedMessage(),exp);
-            exp.printStackTrace();
-        }
-        return meal;
+        return service.get(id, authUserId());
     }
 
     public Meal create(Meal meal) {
@@ -53,23 +45,13 @@ public class MealRestController {
 
     public void delete(int id) {
         logger.info("delete meal {}", id);
-        try {
-            service.delete(id, authUserId());
-        } catch (NotFoundException exp) {
-            logger.error(exp.getLocalizedMessage(),exp);
-            exp.printStackTrace();
-        }
+        service.delete(id, authUserId());
     }
 
     public void update(Meal meal, int id) {
         logger.info("update meal {}", id);
         assureIdConsistent(meal, id);
-        try {
-            service.update(meal);
-        } catch (NotFoundException exp) {
-            logger.error(exp.getLocalizedMessage(), exp);
-            exp.printStackTrace();
-        }
+        service.update(meal);
     }
 
     public List<Meal> getAll(int userId) {
