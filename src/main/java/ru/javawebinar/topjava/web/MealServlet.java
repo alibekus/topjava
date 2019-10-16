@@ -22,11 +22,12 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 
 public class MealServlet extends HttpServlet {
-    private static final Logger logger = LoggerFactory.getLogger(MealServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MealServlet.class);
 
     private MealRestController controller;
 
@@ -38,8 +39,8 @@ public class MealServlet extends HttpServlet {
         }
         List<Meal> allMeal = MealsUtil.MEALS;
         for (int i = 0; i < allMeal.size(); i++) {
-            controller.create(allMeal.get(i));
-            logger.info(allMeal.get(i).toString());
+            controller.create(allMeal.get(i).getUserId(), allMeal.get(i));
+            LOGGER.info(allMeal.get(i).toString());
         }
     }
 
@@ -52,11 +53,11 @@ public class MealServlet extends HttpServlet {
                 request.getParameter("description"),
                 Integer.parseInt(request.getParameter("calories")));
         meal.setUserId(authUserId());
-        logger.info(meal.isNew() ? "Create {}" : "Update {}", meal);
+        LOGGER.info(meal.isNew() ? "Create {}" : "Update {}", meal);
         if (meal.isNew()) {
-            controller.create(meal);
+            controller.create(authUserId(), meal);
         } else {
-            controller.update(meal, meal.getId());
+            controller.update(authUserId(), meal.getId(), meal);
         }
         response.sendRedirect("meals");
     }
@@ -68,44 +69,44 @@ public class MealServlet extends HttpServlet {
         switch (action == null ? "all" : action) {
             case "delete":
                 int id = getId(request);
-                logger.info("Delete {}", id);
-                controller.delete(id);
+                LOGGER.info("Delete {}", id);
+                controller.delete(authUserId(), id);
                 response.sendRedirect("meals");
                 break;
             case "create":
             case "update":
                 final Meal meal = "create".equals(action) ?
                         new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
-                        controller.get(getId(request));
+                        controller.get(authUserId(), getId(request));
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
-                logger.info("meal id {}", meal.getId());
-                logger.info("meal user id {}", meal.getUserId());
+                LOGGER.info("meal id {}", meal.getId());
+                LOGGER.info("meal user id {}", meal.getUserId());
                 break;
             case "filter":
-                logger.info("getFiltered by date and time");
+                LOGGER.info("getFiltered by date and time");
                 String dateFromString = request.getParameter("date-from");
                 String dateToString = request.getParameter("date-to");
                 String timeFromString = request.getParameter("time-from");
                 String timeToString = request.getParameter("time-to");
-                logger.info("From date: {} and time: {}", dateFromString, timeFromString);
-                logger.info("To date: {} and time: {}", dateToString, timeToString);
-                final List<LocalDate> dates = DateTimeUtil.convertToDates(dateFromString, dateToString);
-                List<LocalTime> times = DateTimeUtil.convertToTime(timeFromString, timeToString);
-                final LocalDateTime dateTimeFrom = LocalDateTime.of(dates.get(0), times.get(0));
-                final LocalDateTime dateTimeTo = LocalDateTime.of(dates.get(1), times.get(1));
-                final List<MealTo> mealTos = MealsUtil.getTos(controller.getAll(authUserId()), MealsUtil.DEFAULT_CALORIES_PER_DAY);
-                final List<MealTo> tosBetweenDateAndTime = controller.getTosBetweenDateAndTime(mealTos, dateTimeFrom, dateTimeTo);
-                request.setAttribute("meals", tosBetweenDateAndTime);
+                LOGGER.info("From date: {} and time: {}", dateFromString, timeFromString);
+                LOGGER.info("To date: {} and time: {}", dateToString, timeToString);
+                final List<LocalDate> dates = DateTimeUtil.convertToDate(dateFromString, dateToString);
+                final List<LocalTime> times = DateTimeUtil.convertToTime(timeFromString, timeToString);
+                final List<MealTo> tosBetweenDate = MealsUtil.getTosBetweenDate(controller.getAll(authUserId()),
+                        MealsUtil.DEFAULT_CALORIES_PER_DAY, dates.get(0), dates.get(1));
+                final List<MealTo> tosBetweenTime = tosBetweenDate.stream().
+                        filter(m -> DateTimeUtil.isBetween(m.getTime(), times.get(0), times.get(1)))
+                        .collect(Collectors.toList());
+                request.setAttribute("meals", tosBetweenTime);
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
             case "all":
             default:
-                logger.info("getAll of userId {} ", authUserId());
+                LOGGER.info("getAll of userId {} ", authUserId());
                 final List<MealTo> tos = MealsUtil.getTos(controller.getAll(authUserId()), MealsUtil.DEFAULT_CALORIES_PER_DAY);
-                tos.stream().forEach(to -> logger.info(to.toString()));
-                request.setAttribute("meals",
-                        tos);
+                tos.stream().forEach(to -> LOGGER.info(to.toString()));
+                request.setAttribute("meals",tos);
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
         }
