@@ -7,10 +7,12 @@ import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
+import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 
 @Controller
 public class MealRestController {
@@ -23,30 +25,35 @@ public class MealRestController {
         this.service = service;
     }
 
-    public Meal get(int userId, int id) {
+    public Meal get(int id) {
         LOGGER.info("get meal {} ", id);
-        return service.get(userId, id);
+        return service.get(authUserId(), id);
     }
 
-    public Meal create(int userId, Meal meal) {
+    public Meal create(Meal meal) {
         LOGGER.info("create meal {}", meal);
         checkNew(meal);
-        return service.create(userId, meal);
+        return service.create(authUserId(), meal);
     }
 
-    public void delete(int userId, int id) {
+    public void delete(int id) {
         LOGGER.info("delete meal {}", id);
-        service.delete(userId, id);
+        service.delete(authUserId(), id);
     }
 
-    public void update(int userId, int id, Meal meal) {
+    public void update(int id, Meal meal) {
         LOGGER.info("update meal {}", id);
         assureIdConsistent(meal, id);
-        service.update(userId, meal);
+        service.update(authUserId(), meal);
     }
 
-    public List<Meal> getAll(int userId) {
-        LOGGER.info("getAll({})", userId);
-        return service.getAll(userId);
+    public List<Meal> getAll() {
+        LOGGER.info("getAll({})", authUserId());
+        return service.getAll(authUserId());
+    }
+
+    public List<Meal> getBetweenDate(LocalDate startDate, LocalDate endDate) {
+        LOGGER.info("getBetweenDate({},{},{})",authUserId(),startDate,endDate);
+        return service.getBetweenDate(authUserId(), startDate, endDate);
     }
 }

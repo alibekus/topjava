@@ -38,10 +38,13 @@ public class MealServlet extends HttpServlet {
             controller = appCtx.getBean(MealRestController.class);
         }
         List<Meal> allMeal = MealsUtil.MEALS;
+        int currentUserId = authUserId();
         for (int i = 0; i < allMeal.size(); i++) {
-            controller.create(allMeal.get(i).getUserId(), allMeal.get(i));
+            SecurityUtil.setAuthUserId(allMeal.get(i).getUserId());
+            controller.create(allMeal.get(i));
             LOGGER.info(allMeal.get(i).toString());
         }
+        SecurityUtil.setAuthUserId(currentUserId);
     }
 
     @Override
@@ -55,9 +58,9 @@ public class MealServlet extends HttpServlet {
         meal.setUserId(authUserId());
         LOGGER.info(meal.isNew() ? "Create {}" : "Update {}", meal);
         if (meal.isNew()) {
-            controller.create(authUserId(), meal);
+            controller.create(meal);
         } else {
-            controller.update(authUserId(), meal.getId(), meal);
+            controller.update(meal.getId(), meal);
         }
         response.sendRedirect("meals");
     }
@@ -70,14 +73,14 @@ public class MealServlet extends HttpServlet {
             case "delete":
                 int id = getId(request);
                 LOGGER.info("Delete {}", id);
-                controller.delete(authUserId(), id);
+                controller.delete(id);
                 response.sendRedirect("meals");
                 break;
             case "create":
             case "update":
                 final Meal meal = "create".equals(action) ?
                         new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000) :
-                        controller.get(authUserId(), getId(request));
+                        controller.get(getId(request));
                 request.setAttribute("meal", meal);
                 request.getRequestDispatcher("/mealForm.jsp").forward(request, response);
                 LOGGER.info("meal id {}", meal.getId());
@@ -93,8 +96,8 @@ public class MealServlet extends HttpServlet {
                 LOGGER.info("To date: {} and time: {}", dateToString, timeToString);
                 final List<LocalDate> dates = DateTimeUtil.convertToDate(dateFromString, dateToString);
                 final List<LocalTime> times = DateTimeUtil.convertToTime(timeFromString, timeToString);
-                final List<MealTo> tosBetweenDate = MealsUtil.getTosBetweenDate(controller.getAll(authUserId()),
-                        MealsUtil.DEFAULT_CALORIES_PER_DAY, dates.get(0), dates.get(1));
+                final List<MealTo> tosBetweenDate = MealsUtil.getTos(controller.getBetweenDate(dates.get(0), dates.get(1)),
+                        MealsUtil.DEFAULT_CALORIES_PER_DAY);
                 final List<MealTo> tosBetweenTime = tosBetweenDate.stream().
                         filter(m -> DateTimeUtil.isBetween(m.getTime(), times.get(0), times.get(1)))
                         .collect(Collectors.toList());
@@ -104,7 +107,7 @@ public class MealServlet extends HttpServlet {
             case "all":
             default:
                 LOGGER.info("getAll of userId {} ", authUserId());
-                final List<MealTo> tos = MealsUtil.getTos(controller.getAll(authUserId()), MealsUtil.DEFAULT_CALORIES_PER_DAY);
+                final List<MealTo> tos = MealsUtil.getTos(controller.getAll(), MealsUtil.DEFAULT_CALORIES_PER_DAY);
                 tos.stream().forEach(to -> LOGGER.info(to.toString()));
                 request.setAttribute("meals",tos);
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);

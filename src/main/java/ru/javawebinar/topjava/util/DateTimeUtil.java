@@ -30,25 +30,17 @@ public class DateTimeUtil {
     public static List<LocalDate> convertToDate(String dateFromString, String dateToString) {
         LocalDate from = LocalDate.MIN;
         LocalDate to = LocalDate.MAX;
-        if (dateFromString.length() != 0) {
-            from = LocalDate.parse(dateFromString);
-        }
-        if (dateToString.length() != 0) {
-            to = LocalDate.parse(dateToString);
-        }
+        from = dateFromString.length() != 0 ? LocalDate.parse(dateFromString) : from;
+        to = dateToString.length() != 0 ? LocalDate.parse(dateToString) : to;
         return Arrays.asList(from, to);
     }
 
     public static List<LocalTime> convertToTime(String timeFromString, String timeToString) {
-        LocalTime timeFrom = LocalTime.of(0, 0);
-        LocalTime timeTo = LocalTime.of(23, 59);
-        if (timeFromString.length() != 0) {
-            timeFrom = LocalTime.parse(timeFromString);
-        }
-        if (timeToString.length() != 0) {
-            timeTo = LocalTime.parse(timeToString);
-        }
-        return Arrays.asList(timeFrom, timeTo);
+        LocalTime from = LocalTime.MIN;
+        LocalTime to = LocalTime.MAX;
+        from = timeFromString.length() != 0 ? LocalTime.parse(timeFromString) : from;
+        to = timeToString.length() != 0 ? LocalTime.parse(timeToString) : to;
+        return Arrays.asList(from, to);
     }
 
 }

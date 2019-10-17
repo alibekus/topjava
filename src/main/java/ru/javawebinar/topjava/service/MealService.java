@@ -6,6 +6,7 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
@@ -14,6 +15,7 @@ import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
 public class MealService {
 
     private MealRepository repository;
+
 
     @Autowired
     public MealService(MealRepository repository) {
@@ -25,18 +27,11 @@ public class MealService {
     }
 
     public void delete(int userId, int id) throws NotFoundException {
-        Meal meal = get(userId, id);
-        if (meal != null) {
-            checkNotFoundWithId(repository.delete(userId, id), id);
-        }
+        checkNotFoundWithId(repository.delete(userId, id), id);
     }
 
     public Meal get(int userId, int id) throws NotFoundException {
-        Meal meal = checkNotFoundWithId(repository.get(userId, id), id);
-        if (userId != meal.getUserId()) {
-            throw new NotFoundException("The meal is not belong to current user");
-        }
-        return meal;
+        return checkNotFoundWithId(repository.get(userId, id), id);
     }
 
     public List<Meal> getAll(int userId) throws NotFoundException {
@@ -44,9 +39,10 @@ public class MealService {
     }
 
     public void update(int userId, Meal meal) {
-        Meal meal1 = get(userId, meal.getId());
-        if (meal1 != null) {
-            checkNotFoundWithId(repository.save(userId, meal), meal.getId());
-        }
+        checkNotFoundWithId(repository.save(userId, meal), meal.getId());
+    }
+
+    public List<Meal> getBetweenDate(int userId, LocalDate startDate, LocalDate endDate) {
+        return repository.getBetweenDate(userId, startDate, endDate);
     }
 }

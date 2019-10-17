@@ -18,7 +18,6 @@ public class InMemoryUserRepository extends InMemoryBaseRepository<User> impleme
     private static final Logger logger = LoggerFactory.getLogger(InMemoryUserRepository.class);
     private Map<Integer, User> repository = new ConcurrentHashMap<>();
 
-    @Override
     public boolean delete(int id) {
         logger.info("delete {}", id);
         return super.delete(id);
@@ -27,13 +26,9 @@ public class InMemoryUserRepository extends InMemoryBaseRepository<User> impleme
     @Override
     public User save(User user) {
         logger.info("save {}", user);
-        if (user.isNew()) {
-            user.setId(COUNTER.incrementAndGet());
-        }
         return super.save(user.getId(), user);
     }
 
-    @Override
     public User get(int id) {
         logger.info("get {}", id);
         return super.get(id);
