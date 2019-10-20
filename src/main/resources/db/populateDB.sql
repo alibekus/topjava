@@ -11,30 +11,16 @@ INSERT INTO user_roles (role, user_id) VALUES
   ('ROLE_USER', 100000),
   ('ROLE_ADMIN', 100001);
 
-INSERT INTO meals (user_id, date_time, description, calories)
-VALUES (100000, make_timestamp(2019, 3, 5, 8, 0, 0), 'Завтрак', 850);
-INSERT INTO meals (user_id, date_time, description, calories)
-VALUES (100000, make_timestamp(2019, 3, 5, 13, 30, 0), 'Обед', 1230);
-INSERT INTO meals (user_id, date_time, description, calories)
-VALUES (100000, make_timestamp(2019, 3, 5, 19, 30, 0), 'Ужин', 940);
-
-INSERT INTO meals (user_id, date_time, description, calories)
-VALUES (100001, make_timestamp(2019, 3, 5, 7, 30, 0), 'Завтрак', 740);
-INSERT INTO meals (user_id, date_time, description, calories)
-VALUES (100001, make_timestamp(2019, 3, 5, 12, 30, 0), 'Обед', 1160);
-INSERT INTO meals (user_id, date_time, description, calories)
-VALUES (100001, make_timestamp(2019, 3, 5, 18, 45, 0), 'Ужин', 670);
-
-INSERT INTO meals (user_id, date_time, description, calories)
-VALUES (100000, make_timestamp(2019, 4, 10, 7, 40, 0), 'Завтрак', 630);
-INSERT INTO meals (user_id, date_time, description, calories)
-VALUES (100000, make_timestamp(2019, 4, 10, 13, 10, 0), 'Обед', 1530);
-INSERT INTO meals (user_id, date_time, description, calories)
-VALUES (100000, make_timestamp(2019, 4, 10, 19, 25, 0), 'Ужин', 375);
-
-INSERT INTO meals (user_id, date_time, description, calories)
-VALUES (100001, make_timestamp(2019, 4, 10, 7, 35, 0), 'Завтрак', 475);
-INSERT INTO meals (user_id, date_time, description, calories)
-VALUES (100001, make_timestamp(2019, 4, 10, 13, 5, 0), 'Обед', 1310);
-INSERT INTO meals (user_id, date_time, description, calories)
-VALUES (100001, make_timestamp(2019, 4, 10, 19, 45, 0), 'Ужин', 590);
+INSERT INTO meals (user_id, date_time, description, calories) VALUES
+    (100000, '2019-3-5 08:00:00', 'Завтрак', 850),
+    (100000, '2019-3-5 13:30:00', 'Обед', 1230),
+    (100000, '2019-3-5 19:30:00', 'Ужин', 940),
+    (100001, '2019-3-5 07:30:00', 'Завтрак', 740),
+    (100001, '2019-3-5 12:30:00', 'Обед', 1160),
+    (100001, '2019-3-5 18:45:00', 'Ужин', 670),
+    (100000, '2019-4-10 07:40:00', 'Завтрак', 630),
+    (100000, '2019-4-10 13:10:00', 'Обед', 1530),
+    (100000, '2019-4-10 19:25:00', 'Ужин', 375),
+    (100001, '2019-4-10 07:35:00', 'Завтрак', 475),
+    (100001, '2019-4-10 13:05:00', 'Обед', 1310),
+    (100001, make_timestamp(2019, 4, 10, 19, 45, 0), 'Ужин', 590);

@@ -1,5 +1,5 @@
-DROP INDEX IF EXISTS meal_id_user_id_idx;
 DROP INDEX IF EXISTS users_unique_email_idx;
+DROP INDEX IF EXISTS meals_user_id_date_time;
 DROP TABLE IF EXISTS user_roles;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS meals;
@@ -33,8 +33,8 @@ CREATE TABLE meals
     user_id INTEGER NOT NULL,
     date_time TIMESTAMP NOT NULL ,
     description TEXT,
-    calories INTEGER NOT NULL
+    calories INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
-CREATE UNIQUE INDEX meals_id_user_id_idx ON meals (id,user_id);
 
 CREATE UNIQUE INDEX meals_user_id_date_time ON meals (user_id,date_time);

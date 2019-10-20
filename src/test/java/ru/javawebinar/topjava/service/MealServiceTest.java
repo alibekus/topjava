@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -12,17 +13,17 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
-import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static ru.javawebinar.topjava.MealTestData.*;
+import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
 @ContextConfiguration({
-        "classpath:spring/spring-app.xml",
+        "classpath:spring/jdbc.xml",
         "classpath:spring/spring-db.xml"
 })
 @RunWith(SpringRunner.class)
@@ -30,6 +31,7 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 public class MealServiceTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MealServiceTest.class.getSimpleName());
+    private static final int USER_MEAL_ID = 100_002;
 
     static {
         // Only for postgres driver logging
@@ -40,20 +42,20 @@ public class MealServiceTest {
     @Autowired
     private MealService service;
 
+    @Before
+    public void setUp() {
+        TEST_MEAL.setId(null);
+    }
+
     @Test
     public void get() {
         Meal createdMeal = service.create(TEST_MEAL, USER_ID);
-        Meal actualMeal;
-        if (createdMeal != null) {
-            actualMeal = service.get(createdMeal.getId(), USER_ID);
-            service.delete(createdMeal.getId(), USER_ID);
-        } else {
-            actualMeal = TEST_MEAL;
-        }
-        assertThat(actualMeal).isEqualTo(TEST_MEAL);
+        Meal actualMeal = service.get(createdMeal.getId(), USER_ID);
+        service.delete(createdMeal.getId(), USER_ID);
+        assertThat(actualMeal).isEqualToIgnoringGivenFields(actualMeal, "id").isEqualTo(TEST_MEAL);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = NotFoundException.class)
     public void delete() {
         Meal createdMeal = service.create(TEST_MEAL, USER_ID);
         service.delete(createdMeal.getId(), USER_ID);
@@ -67,9 +69,9 @@ public class MealServiceTest {
         List<Meal> mealsBetweenDates = service.getBetweenDates(startDate, endDate, USER_ID);
         int size = mealsBetweenDates.size();
         if (size > 0) {
-            LocalDate meal0Date = mealsBetweenDates.get(0).getDate();
-            assertThat(meal0Date).isAfterOrEqualTo(startDate);
-            assertThat(meal0Date).isBeforeOrEqualTo(endDate);
+            LocalDate firstMealDate = mealsBetweenDates.get(0).getDate();
+            assertThat(firstMealDate).isAfterOrEqualTo(startDate);
+            assertThat(firstMealDate).isBeforeOrEqualTo(endDate);
             if (size > 1) {
                 LocalDate lastMealDate = mealsBetweenDates.get(size - 1).getDate();
                 assertThat(lastMealDate).isAfterOrEqualTo(startDate);
@@ -80,45 +82,52 @@ public class MealServiceTest {
 
     @Test
     public void getAll() {
-        List<Meal> meals = service.getAll(USER_ID);
-        LOGGER.info(meals.toString());
-        assertMatch(meals, USER_MEALS);
+        final List<Meal> userMealsDb = service.getAll(USER_ID);
+        final List<Meal> userMealsSorted = getUserMealsSorted();
+        for (int i = 0; i < userMealsDb.size(); i++) {
+            userMealsSorted.get(i).setId(userMealsDb.get(i).getId());
+        }
+        LOGGER.info(userMealsDb.toString());
+        assertMatch(userMealsDb, userMealsSorted);
     }
 
     @Test
     public void update() {
-        Meal userMeal = service.getAll(USER_ID).get(0);
-        LOGGER.info(userMeal.toString());
+        Meal actualMeal = service.get(USER_MEAL_ID, USER_ID);
+        LOGGER.info("actual {}", actualMeal.toString());
         Meal updateMeal = new Meal(TEST_MEAL.getDateTime(), TEST_MEAL.getDescription(), TEST_MEAL.getCalories());
-        updateMeal.setId(userMeal.getId());
+        updateMeal.setId(USER_MEAL_ID);
         service.update(updateMeal, USER_ID);
-        LOGGER.info(service.get(updateMeal.getId(), USER_ID).toString());
-        assertMatch(service.get(updateMeal.getId(), USER_ID), updateMeal);
+        LOGGER.info("update {}", service.get(USER_MEAL_ID, USER_ID).toString());
+        assertMatch(service.get(USER_MEAL_ID, USER_ID), updateMeal);
     }
 
     @Test
     public void create() {
-        Meal createdMeal = service.create(TEST_MEAL, SecurityUtil.authUserId());
-        service.delete(createdMeal.getId(), USER_ID);
-        LOGGER.info("create({})", SecurityUtil.authUserId());
-        LOGGER.info(createdMeal.toString());
-        assertThat(TEST_MEAL).isEqualTo(createdMeal);
+        LOGGER.info("create({})", USER_ID);
+        Meal expectedMeal = service.create(TEST_MEAL, USER_ID);
+        final Meal actualMeal = service.get(expectedMeal.getId(), USER_ID);
+        LOGGER.info(expectedMeal.toString());
+        service.delete(expectedMeal.getId(), USER_ID);
+        assertThat(actualMeal)
+                .isEqualToComparingOnlyGivenFields(expectedMeal,
+                        "dateTime","description","calories");
     }
 
     @Test(expected = NotFoundException.class)
     public void getAnotherUserMeal() {
         LOGGER.info("getAnotherUserMeal()");
-        service.get(100_002, 100_001);
+        service.get(USER_MEAL_ID, ADMIN_ID);
     }
 
     @Test(expected = NotFoundException.class)
     public void deleteAnotherUserMeal() {
-        service.delete(100_002, 100_001);
+        service.delete(USER_MEAL_ID, ADMIN_ID);
     }
 
     @Test(expected = NotFoundException.class)
     public void updateAnotherUserMeal() {
-        SecurityUtil.setAuthUserId(100_000);
-        service.update(TEST_MEAL, 100_001);
+        final Meal userMeal = service.get(USER_MEAL_ID, USER_ID);
+        service.update(userMeal, ADMIN_ID);
     }
 }

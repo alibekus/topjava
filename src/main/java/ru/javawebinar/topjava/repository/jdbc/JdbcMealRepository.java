@@ -67,27 +67,27 @@ public class JdbcMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> meals = jdbcTemplate.query("SELECT m.id as id, m.date_time as dateTime, " +
-                        "m.description as description, m.calories as calories FROM meals m WHERE id=? and m.user_id=?",
+        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals m WHERE id=? and m.user_id=?",
                 ROW_MAPPER, id, userId);
+        /*List<Meal> meals = jdbcTemplate.query("SELECT m.id as id, m.date_time as dateTime, " +
+                        "m.description as description, m.calories as calories FROM meals m WHERE id=? and m.user_id=?",
+                ROW_MAPPER, id, userId);*/
         return DataAccessUtils.singleResult(meals);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
         logger.info("getAll({})", userId);
-        List<Meal> userMeals = jdbcTemplate.query("SELECT m.id as id, m.date_time as date_time, " +
-                "m.description as description, m.calories as calories FROM meals m WHERE m.user_id=? " +
-                "ORDER BY m.date_time", ROW_MAPPER, userId);
+        List<Meal> userMeals = jdbcTemplate.query("SELECT * FROM meals m WHERE m.user_id=? " +
+                "ORDER BY m.date_time DESC", ROW_MAPPER, userId);
         logger.info("User's meals: {}", userMeals);
         return userMeals;
     }
 
     @Override
     public List<Meal> getBetween(LocalDateTime startDate, LocalDateTime endDate, int userId) {
-        return jdbcTemplate.query("SELECT m.id as id, m.date_time as dateTime, " +
-                        "m.description as description, m.calories as calories FROM meals m WHERE date_time " +
-                        "BETWEEN ? AND ? and m.user_id=?", ROW_MAPPER,
+        return jdbcTemplate.query("SELECT * FROM meals m WHERE date_time " +
+                        "BETWEEN ? AND ? and m.user_id=? ORDER BY m.date_time DESC ", ROW_MAPPER,
                 startDate, endDate, userId);
     }
 }
