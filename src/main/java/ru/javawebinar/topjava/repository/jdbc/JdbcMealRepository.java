@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.repository.jdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,7 +13,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,19 +43,27 @@ public class JdbcMealRepository implements MealRepository {
     public Meal save(Meal meal, int userId) {
         MapSqlParameterSource map = new MapSqlParameterSource()
                 .addValue("id", meal.getId())
-                .addValue("user_id", userId)
+                .addValue("userId", userId)
                 .addValue("dateTime", meal.getDateTime())
                 .addValue("description", meal.getDescription())
                 .addValue("calories", meal.getCalories());
-        if (userId != SecurityUtil.authUserId()) {
+        /*if (userId != SecurityUtil.authUserId()) {
             return null;
-        } else if (meal.isNew()) {
+        } else*/
+        if (meal.isNew()) {
             Number newKey = insertMeal.executeAndReturnKey(map);
             meal.setId(newKey.intValue());
-        } else if (namedParameterJdbcTemplate.update(
-                "UPDATE meals SET date_time=:dateTime, description=:description, " +
-                        "calories=:calories WHERE id=:id", map) == 0) {
-            return null;
+        } else {
+            try {
+                if (namedParameterJdbcTemplate.update(
+                        "UPDATE meals SET date_time=:dateTime, description=:description, " +
+                                "calories=:calories WHERE id=:id AND user_id=:userId", map) == 0) {
+                    return null;
+                }
+            } catch (DataAccessException exp) {
+                exp.printStackTrace();
+                return null;
+            }
         }
         return meal;
     }

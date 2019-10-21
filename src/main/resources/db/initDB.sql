@@ -1,9 +1,9 @@
-DROP INDEX IF EXISTS users_unique_email_idx;
-DROP INDEX IF EXISTS meals_user_id_date_time;
+DROP TABLE IF EXISTS meals;
 DROP TABLE IF EXISTS user_roles;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS meals;
 DROP SEQUENCE IF EXISTS global_seq;
+DROP INDEX IF EXISTS users_unique_email_idx;
+DROP INDEX IF EXISTS meals_user_id_date_time;
 
 CREATE SEQUENCE global_seq START WITH 100000;
 

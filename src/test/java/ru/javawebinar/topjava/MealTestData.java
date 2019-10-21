@@ -53,20 +53,6 @@ public class MealTestData {
     }
 
     public static void assertMatch(Iterable<Meal> actual, Meal... expected) {
-        assertMatch(actual, Arrays.asList(expected));
-    }
-
-    public static void assertMatch(Iterable<Meal> actual, Iterable<Meal> expected) {
-        final Iterator<Meal> actualIter = actual.iterator();
-        final Iterator<Meal> expectedIter = expected.iterator();
-        while (actualIter.hasNext() && expectedIter.hasNext()) {
-            assertThat(actualIter.next()).isEqualToComparingFieldByField(expectedIter.next());
-        }
-    }
-
-    public static List<Meal> getUserMealsSorted() {
-        return USER_MEALS.stream()
-                .sorted(Comparator.comparing(Meal::getDateTime).reversed())
-                .collect(Collectors.toList());
+        assertThat(actual).containsOnly(expected);
     }
 }
