@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Objects;
 
 public class Meal extends AbstractBaseEntity {
     private LocalDateTime dateTime;
@@ -11,7 +12,8 @@ public class Meal extends AbstractBaseEntity {
 
     private int calories;
 
-    public Meal(){}
+    public Meal() {
+    }
 
     public Meal(LocalDateTime dateTime, String description, int calories) {
         this(null, dateTime, description, calories);
@@ -54,6 +56,22 @@ public class Meal extends AbstractBaseEntity {
 
     public LocalTime getTime() {
         return dateTime.toLocalTime();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Meal meal = (Meal) o;
+        return calories == meal.calories &&
+                dateTime.equals(meal.dateTime) &&
+                description.equals(meal.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), dateTime, description, calories);
     }
 
     @Override

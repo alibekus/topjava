@@ -14,7 +14,9 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -43,10 +45,15 @@ public class MealServiceTest {
 
     @Test
     public void get() {
+        Meal testMeal = new Meal(USER_MEAL_1.getDateTime(), USER_MEAL_1.getDescription(), USER_MEAL_1.getCalories());
+        testMeal.setId(USER_MEAL_1_ID);
         LOGGER.info("get meal of user {}", USER_ID);
-        Meal actualMeal = service.get(USER_MEAL_1.getId(), USER_ID);
-        assertThat(actualMeal).isEqualToIgnoringGivenFields(actualMeal, "id")
-                .isEqualTo(USER_MEAL_1);
+        Meal actualMeal = service.get(USER_MEAL_1_ID, USER_ID);
+        if (actualMeal != null) {
+            assertThat(actualMeal).isEqualToComparingFieldByField(testMeal);
+        } else {
+            throw new NotFoundException("Meal with id " + USER_MEAL_1_ID + " not found");
+        }
     }
 
     @Test(expected = NotFoundException.class)
@@ -79,13 +86,23 @@ public class MealServiceTest {
 
     @Test
     public void getAll() {
-        final List<Meal> userMealsDb = service.getAll(USER_ID);
-        final Meal[] userMealsSorted = USER_MEALS.toArray(new Meal[USER_MEALS.size()]);
-        for (int i = 0; i < userMealsDb.size(); i++) {
-            userMealsSorted[i].setId(userMealsDb.get(i).getId());
+        final List<Meal> actualMeals = service.getAll(USER_ID);
+        final List<Meal> expectedMeals = USER_MEALS.stream()
+                .sorted((meal1, meal2) -> {
+                    if (meal1.getDateTime().compareTo(meal2.getDateTime()) > 0) {
+                        return -1;
+                    } else if (meal1.getDateTime().compareTo(meal2.getDateTime()) < 0) {
+                        return 1;
+                    } else return 0;
+                })
+                .collect(Collectors.toList());
+        final Iterator<Meal> actualIterator = actualMeals.iterator();
+        final Iterator<Meal> expectedIterator = expectedMeals.iterator();
+        while (actualIterator.hasNext() && expectedIterator.hasNext()) {
+            expectedIterator.next().setId(actualIterator.next().getId());
         }
-        LOGGER.info(userMealsDb.toString());
-        assertMatch(userMealsDb, userMealsSorted);
+        LOGGER.info(actualMeals.toString());
+        assertMatch(actualMeals, expectedMeals);
     }
 
     @Test

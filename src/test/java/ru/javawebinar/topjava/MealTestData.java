@@ -5,10 +5,7 @@ import ru.javawebinar.topjava.model.Meal;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,9 +22,9 @@ public class MealTestData {
 
     static {
         USER_MEALS = Arrays.asList(
-                USER_MEAL_1,USER_MEAL_2,USER_MEAL_3,
-                USER_MEAL_4,USER_MEAL_5,USER_MEAL_6
-            );
+                USER_MEAL_1, USER_MEAL_2, USER_MEAL_3,
+                USER_MEAL_4, USER_MEAL_5, USER_MEAL_6
+        );
     }
 
     public static final Meal ADMIN_MEAL_1 = new Meal(LocalDateTime.of(2019, Month.MARCH, 5, 7, 30), "Завтрак", 740);
@@ -39,11 +36,11 @@ public class MealTestData {
 
     public static final List<Meal> ADMIN_MEALS;
 
-    static {        
+    static {
         ADMIN_MEALS = Arrays.asList(
-                ADMIN_MEAL_1,ADMIN_MEAL_2,ADMIN_MEAL_3,
-                ADMIN_MEAL_4,ADMIN_MEAL_5,ADMIN_MEAL_6
-            );
+                ADMIN_MEAL_1, ADMIN_MEAL_2, ADMIN_MEAL_3,
+                ADMIN_MEAL_4, ADMIN_MEAL_5, ADMIN_MEAL_6
+        );
     }
 
     public static final Meal TEST_MEAL = new Meal(LocalDateTime.of(2019, 3, 5, 7, 45), "Breakfast", 555);
@@ -52,7 +49,7 @@ public class MealTestData {
         assertThat(actual).isEqualTo(expected);
     }
 
-    public static void assertMatch(Iterable<Meal> actual, Meal... expected) {
-        assertThat(actual).containsOnly(expected);
+    public static void assertMatch(Iterable<Meal> actual, Iterable<Meal> expected) {
+        assertThat(actual).usingFieldByFieldElementComparator().isEqualTo(expected);
     }
 }
