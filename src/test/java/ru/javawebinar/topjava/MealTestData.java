@@ -7,16 +7,20 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.time.LocalDateTime.of;
 import static org.assertj.core.api.Assertions.assertThat;
+import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
 
 public class MealTestData {
+    public static final int USER_MEAL1_ID = START_SEQ + 2;
+    public static final int ADMIN_MEAL_ID = START_SEQ + 5;
 
-    public static final Meal USER_MEAL_1 = new Meal(LocalDateTime.of(2019, Month.MARCH, 5, 8, 0), "Завтрак", 850);
-    public static final Meal USER_MEAL_2 = new Meal(LocalDateTime.of(2019, Month.MARCH, 5, 13, 30), "Обед", 1230);
-    public static final Meal USER_MEAL_3 = new Meal(LocalDateTime.of(2019, Month.MARCH, 5, 19, 30), "Ужин", 940);
-    public static final Meal USER_MEAL_4 = new Meal(LocalDateTime.of(2019, Month.APRIL, 10, 7, 40), "Завтрак", 630);
-    public static final Meal USER_MEAL_5 = new Meal(LocalDateTime.of(2019, Month.APRIL, 10, 13, 10), "Обед", 1530);
-    public static final Meal USER_MEAL_6 = new Meal(LocalDateTime.of(2019, Month.APRIL, 10, 19, 25), "Ужин", 375);
+    public static final Meal USER_MEAL_1 = new Meal(USER_MEAL1_ID, LocalDateTime.of(2019, Month.MARCH, 5, 8, 0), "Завтрак", 850);
+    public static final Meal USER_MEAL_2 = new Meal(USER_MEAL1_ID + 1, LocalDateTime.of(2019, Month.MARCH, 5, 13, 30), "Обед", 1230);
+    public static final Meal USER_MEAL_3 = new Meal(USER_MEAL1_ID + 2, LocalDateTime.of(2019, Month.MARCH, 5, 19, 30), "Ужин", 940);
+    public static final Meal USER_MEAL_4 = new Meal(USER_MEAL1_ID + 6, LocalDateTime.of(2019, Month.APRIL, 10, 7, 40), "Завтрак", 630);
+    public static final Meal USER_MEAL_5 = new Meal(USER_MEAL1_ID + 7, LocalDateTime.of(2019, Month.APRIL, 10, 13, 10), "Обед", 1530);
+    public static final Meal USER_MEAL_6 = new Meal(USER_MEAL1_ID + 8, LocalDateTime.of(2019, Month.APRIL, 10, 19, 25), "Ужин", 375);
 
     public static final List<Meal> USER_MEALS;
 
@@ -27,12 +31,12 @@ public class MealTestData {
         );
     }
 
-    public static final Meal ADMIN_MEAL_1 = new Meal(LocalDateTime.of(2019, Month.MARCH, 5, 7, 30), "Завтрак", 740);
-    public static final Meal ADMIN_MEAL_2 = new Meal(LocalDateTime.of(2019, Month.MARCH, 5, 12, 30), "Обед", 1160);
-    public static final Meal ADMIN_MEAL_3 = new Meal(LocalDateTime.of(2019, Month.MARCH, 5, 18, 45), "Ужин", 670);
-    public static final Meal ADMIN_MEAL_4 = new Meal(LocalDateTime.of(2019, Month.APRIL, 10, 7, 35), "Завтрак", 475);
-    public static final Meal ADMIN_MEAL_5 = new Meal(LocalDateTime.of(2019, Month.APRIL, 10, 13, 5), "Обед", 1310);
-    public static final Meal ADMIN_MEAL_6 = new Meal(LocalDateTime.of(2019, Month.APRIL, 10, 19, 45), "Ужин", 590);
+    public static final Meal ADMIN_MEAL_1 = new Meal(ADMIN_MEAL_ID, LocalDateTime.of(2019, Month.MARCH, 5, 7, 30), "Завтрак", 740);
+    public static final Meal ADMIN_MEAL_2 = new Meal(ADMIN_MEAL_ID + 1, LocalDateTime.of(2019, Month.MARCH, 5, 12, 30), "Обед", 1160);
+    public static final Meal ADMIN_MEAL_3 = new Meal(ADMIN_MEAL_ID + 2, LocalDateTime.of(2019, Month.MARCH, 5, 18, 45), "Ужин", 670);
+    public static final Meal ADMIN_MEAL_4 = new Meal(ADMIN_MEAL_ID + 6, LocalDateTime.of(2019, Month.APRIL, 10, 7, 35), "Завтрак", 475);
+    public static final Meal ADMIN_MEAL_5 = new Meal(ADMIN_MEAL_ID + 7, LocalDateTime.of(2019, Month.APRIL, 10, 13, 5), "Обед", 1310);
+    public static final Meal ADMIN_MEAL_6 = new Meal(ADMIN_MEAL_ID + 8, LocalDateTime.of(2019, Month.APRIL, 10, 19, 45), "Ужин", 590);
 
     public static final List<Meal> ADMIN_MEALS;
 
@@ -45,11 +49,24 @@ public class MealTestData {
 
     public static final Meal TEST_MEAL = new Meal(LocalDateTime.of(2019, 3, 5, 7, 45), "Breakfast", 555);
 
+    public static Meal getCreateMeal() {
+        return new Meal(null, of(2019, 3, 5, 7, 30, 0), "Новый завтрак", 660);
+    }
+
+    public static Meal getUpdateMeal() {
+        return new Meal(USER_MEAL1_ID, of(2019, 3, 5, 6, 45, 0), "Обновленный завтрак", 550);
+    }
+
     public static void assertMatch(Meal actual, Meal expected) {
-        assertThat(actual).isEqualTo(expected);
+        assertThat(actual).isEqualToComparingFieldByField(expected);
+    }
+
+    public static void assertMatch(Iterable<Meal> actual, Meal... expected) {
+        assertMatch(actual, Arrays.asList(expected));
     }
 
     public static void assertMatch(Iterable<Meal> actual, Iterable<Meal> expected) {
         assertThat(actual).usingFieldByFieldElementComparator().isEqualTo(expected);
     }
+
 }
