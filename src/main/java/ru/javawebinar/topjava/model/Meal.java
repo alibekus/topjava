@@ -1,16 +1,41 @@
 package ru.javawebinar.topjava.model;
 
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+@NamedQueries({
+        @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m " +
+                "WHERE m.id = :id AND m.user.id = :userId"),
+        @NamedQuery(name = Meal.GET_ALL, query = "SELECT m.dateTime, m.description, m.calories " +
+                "FROM Meal m WHERE m.user.id = :userId ORDER BY m.dateTime DESC"),
+        @NamedQuery(name = Meal.GET_BETWEEN_DATES, query = "SELECT m.dateTime, m.description, m.calories " +
+                "FROM Meal m WHERE m.user.id = :userId AND m.dateTime BETWEEN :startDate AND :endDate"),
+        @NamedQuery(name = Meal.FIND, query = "SELECT m.id, m.dateTime, m.description, m.calories " +
+                "FROM Meal m WHERE m.id = :id AND m.user.id = :userId")
+})
+
+@Entity
+@Table(name = "meals", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "date_time"}, name = "meals_user_id_date_time")})
 public class Meal extends AbstractBaseEntity {
+    public static final String DELETE = "Meal.delete";
+    public static final String GET_ALL = "Meal.getAll";
+    public static final String GET_BETWEEN_DATES = "Meal.getAllBetweenDates";
+    public static final String FIND = "Meal.find";
+
+    @Column(name = "date_time", nullable = false, columnDefinition = "date and time of meal having")
+    @NotNull
     private LocalDateTime dateTime;
 
+    @Column(name = "description", nullable = false, columnDefinition = "what food")
+    @NotBlank
     private String description;
 
+    @Column(name = "calories", nullable = false, columnDefinition = "calories of food")
+    @NotNull
     private int calories;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -74,6 +99,7 @@ public class Meal extends AbstractBaseEntity {
     public String toString() {
         return "Meal{" +
                 "id=" + id +
+                ", user=" + user +
                 ", dateTime=" + dateTime +
                 ", description='" + description + '\'' +
                 ", calories=" + calories +
