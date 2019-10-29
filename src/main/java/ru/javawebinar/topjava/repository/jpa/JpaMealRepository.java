@@ -1,22 +1,19 @@
 package ru.javawebinar.topjava.repository.jpa;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-@org.springframework.transaction.annotation.Transactional
+@Transactional(readOnly = true)
 public class JpaMealRepository implements MealRepository {
 
     @PersistenceContext
@@ -25,7 +22,8 @@ public class JpaMealRepository implements MealRepository {
     @Override
     @Transactional
     public Meal save(Meal meal, int userId) {
-        meal.setUser(em.find(User.class, userId));
+        User userRef = em.getReference(User.class, userId);
+        meal.setUser(userRef);
         if (meal.isNew()) {
             em.persist(meal);
             return meal;
@@ -45,25 +43,16 @@ public class JpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> meals = new ArrayList<>();
-        final List<Object[]> mealObjects = em.createNamedQuery(Meal.FIND)
+        final List<Meal> meals = em.createNamedQuery(Meal.FIND, Meal.class)
                 .setParameter("id", id)
                 .setParameter("userId", userId)
                 .getResultList();
-        for (Object[] mealObject : mealObjects) {
-            final int mealId = (Integer) mealObject[0];
-            final LocalDateTime dateTime = LocalDateTime.parse(String.valueOf(mealObject[1]));
-            final String description = String.valueOf(mealObject[2]);
-            final int calories = (Integer) mealObject[3];
-            final Meal meal = new Meal(mealId, dateTime, description, calories);
-            meals.add(meal);
-        }
         return DataAccessUtils.singleResult(meals);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return em.createNamedQuery(Meal.GET_ALL)
+        return em.createNamedQuery(Meal.GET_ALL, Meal.class)
                 .setParameter("userId", userId)
                 .getResultList();
     }
@@ -76,4 +65,5 @@ public class JpaMealRepository implements MealRepository {
                 .setParameter("endDate", endDate)
                 .getResultList();
     }
+
 }

@@ -5,6 +5,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,11 +15,15 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.rule.TestTimingRule;
+import ru.javawebinar.topjava.rule.TestStopwatchRule;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
@@ -33,31 +38,46 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 public class MealServiceTest {
 
     @Rule
-    public TestTimingRule testRule = new TestTimingRule();
-    @Rule
     public ExpectedException exception = ExpectedException.none();
+    @Rule
+    public TestName name = new TestName();
+    @Rule
+    public TestStopwatchRule stopwatch;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+    private static final Map<String, Long> testTimeMap = new HashMap<>();
 
     @ClassRule
     public static final ExternalResource resource = new ExternalResource() {
         Logger logger = LoggerFactory.getLogger(MealServiceTest.class.getSimpleName());
         long startTestMillis;
+
         @Override
         protected void before() throws Throwable {
             logger.info("Start of MealServiceTest");
             startTestMillis = System.currentTimeMillis();
-        };
+        }
 
         @Override
         protected void after() {
+            final Set<Map.Entry<String, Long>> testTimeEntry = testTimeMap.entrySet();
+            for (Map.Entry testTime : testTimeEntry) {
+                logger.info("Test {} has been executed {} ms", testTime.getKey(), testTime.getValue());
+            }
             long endTestMillis = System.currentTimeMillis();
             long testDuration = endTestMillis - startTestMillis;
             logger.info("MealServiceTest. Duration: {} ms", testDuration);
-        };
-    };
+        }
 
+        ;
+    };
 
     @Autowired
     private MealService service;
+
+    public MealServiceTest() {
+        stopwatch = new TestStopwatchRule(testTimeMap);
+    }
 
     @Test
     public void delete() {
@@ -83,7 +103,8 @@ public class MealServiceTest {
         Meal created = service.create(newMeal, USER_ID);
         newMeal.setId(created.getId());
         assertMatch(newMeal, created);
-        assertMatch(service.getAll(USER_ID), newMeal, MEAL6, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1);
+        final List<Meal> all = service.getAll(USER_ID);
+        assertMatch(all, newMeal, MEAL6, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1);
     }
 
     @Test
@@ -109,7 +130,6 @@ public class MealServiceTest {
         Meal updated = getUpdated();
         service.update(updated, USER_ID);
         final Meal actual = service.get(MEAL1_ID, USER_ID);
-        updated.setUser(null);
         assertMatch(actual, updated);
     }
 
