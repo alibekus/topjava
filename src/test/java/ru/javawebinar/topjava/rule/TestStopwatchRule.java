@@ -19,20 +19,14 @@ public class TestStopwatchRule extends Stopwatch {
     }
 
     protected void succeeded(long nanos, Description description) {
-        final String methodName = description.getMethodName();
-        final Long millis = TimeUnit.NANOSECONDS.toMillis(nanos);
-        testTimeMap.put(methodName, millis);
-        logger.info("{} succeeded, time taken {} ms", methodName, millis);
+        logger.info("{} succeeded, time taken {} ms", description.getMethodName(), runtime(TimeUnit.MILLISECONDS));
     }
 
     /**
      * Invoked when a test fails
      */
     protected void failed(long nanos, Throwable e, Description description) {
-        final String methodName = description.getMethodName();
-        final Long millis = TimeUnit.NANOSECONDS.toMillis(nanos);
-        testTimeMap.put(methodName, millis);
-        logger.info("{} failed, time taken {} ms", description.getMethodName(), millis);
+        logger.info("{} failed, time taken {} ms", description.getMethodName(), runtime(TimeUnit.MILLISECONDS));
     }
 
     /**
@@ -40,18 +34,13 @@ public class TestStopwatchRule extends Stopwatch {
      */
     protected void skipped(long nanos, AssumptionViolatedException e,
                            Description description) {
-        final String methodName = description.getMethodName();
-        final Long millis = TimeUnit.NANOSECONDS.toMillis(nanos);
-        testTimeMap.put(methodName, millis);
-        logger.info("{} skipped, time taken {} ms", description.getMethodName(), millis);
+        logger.info("{} skipped, time taken {} ms", description.getMethodName(), runtime(TimeUnit.MILLISECONDS));
 }
 
     /**
      * Invoked when a test method finishes (whether passing or failing)
      */
     protected void finished(long nanos, Description description) {
-        final String methodName = description.getMethodName();
-        final Long millis = TimeUnit.NANOSECONDS.toMillis(nanos);
-        testTimeMap.put(methodName, millis);
+        testTimeMap.put(description.getMethodName(), runtime(TimeUnit.MILLISECONDS));
     }
 }

@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
@@ -36,37 +37,33 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringJUnit4ClassRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+    private static final Map<String, Long> testTimeMap = new HashMap<>();
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
     @Rule
-    public TestName name = new TestName();
-    @Rule
-    public TestStopwatchRule stopwatch;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
-    private static final Map<String, Long> testTimeMap = new HashMap<>();
+    public TestStopwatchRule stopwatch = new TestStopwatchRule(testTimeMap);
 
     @ClassRule
     public static final ExternalResource resource = new ExternalResource() {
         Logger logger = LoggerFactory.getLogger(MealServiceTest.class.getSimpleName());
-        long startTestMillis;
 
         @Override
         protected void before() throws Throwable {
             logger.info("Start of MealServiceTest");
-            startTestMillis = System.currentTimeMillis();
         }
 
         @Override
         protected void after() {
+            int totalTime = 0;
             final Set<Map.Entry<String, Long>> testTimeEntry = testTimeMap.entrySet();
             for (Map.Entry testTime : testTimeEntry) {
-                logger.info("Test {} has been executed {} ms", testTime.getKey(), testTime.getValue());
+                final Long time = (Long) testTime.getValue();
+                totalTime += time;
+                logger.info("{} - {} ms", testTime.getKey(), time);
             }
-            long endTestMillis = System.currentTimeMillis();
-            long testDuration = endTestMillis - startTestMillis;
-            logger.info("MealServiceTest. Duration: {} ms", testDuration);
+            logger.info("Total time: {} ms", totalTime);
         }
 
         ;
@@ -74,10 +71,6 @@ public class MealServiceTest {
 
     @Autowired
     private MealService service;
-
-    public MealServiceTest() {
-        stopwatch = new TestStopwatchRule(testTimeMap);
-    }
 
     @Test
     public void delete() {

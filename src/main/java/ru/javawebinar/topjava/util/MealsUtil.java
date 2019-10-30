@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 public class MealsUtil {
     public static final int DEFAULT_CALORIES_PER_DAY = 2000;
+    private static final int MAX_CALORIES_PER_MEAL = 5000;
+    private static final int MIN_CALORIES_PER_MEAL = 10;
 
     private MealsUtil() {
     }
@@ -24,6 +26,10 @@ public class MealsUtil {
 
     public static List<MealTo> getFilteredTos(Collection<Meal> meals, int caloriesPerDay, @Nullable LocalTime startTime, @Nullable LocalTime endTime) {
         return getFiltered(meals, caloriesPerDay, meal -> Util.isBetweenInclusive(meal.getTime(), startTime, endTime));
+    }
+
+    public static boolean isAllowableCalories(int calorie) {
+        return calorie >= MIN_CALORIES_PER_MEAL && calorie <= MAX_CALORIES_PER_MEAL;
     }
 
     private static List<MealTo> getFiltered(Collection<Meal> meals, int caloriesPerDay, Predicate<Meal> filter) {

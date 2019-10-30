@@ -6,18 +6,20 @@ import org.springframework.util.Assert;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.DateTimeUtil;
+import ru.javawebinar.topjava.util.MealsUtil;
+import ru.javawebinar.topjava.util.exception.CaloriesExcessException;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import static ru.javawebinar.topjava.util.ValidationUtil.checkCaloriesRange;
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
 
 @Service
 public class MealService {
-    private static final LocalDate MIN_DATE = LocalDate.of(0,1,1);
-    private static final LocalDate MAX_DATE = LocalDate.of(9999,12,31);
+    private static final LocalDate MIN_DATE = LocalDate.of(0, 1, 1);
+    private static final LocalDate MAX_DATE = LocalDate.of(9999, 12, 31);
     private final MealRepository repository;
 
     public MealService(MealRepository repository) {
@@ -50,6 +52,7 @@ public class MealService {
 
     public Meal create(Meal meal, int userId) {
         Assert.notNull(meal, "meal must not be null");
+        checkCaloriesRange(meal.getCalories());
         return repository.save(meal, userId);
     }
 }
