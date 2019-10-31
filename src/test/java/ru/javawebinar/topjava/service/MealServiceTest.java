@@ -5,7 +5,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
-import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.UserTestData.ADMIN_ID;
@@ -37,7 +35,7 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @RunWith(SpringJUnit4ClassRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getSimpleName());
+
     private static final Map<String, Long> testTimeMap = new HashMap<>();
 
     @Rule
@@ -56,17 +54,16 @@ public class MealServiceTest {
 
         @Override
         protected void after() {
-            int totalTime = 0;
             final Set<Map.Entry<String, Long>> testTimeEntry = testTimeMap.entrySet();
+            StringBuilder testInfoBuilder = new StringBuilder();
+            testInfoBuilder.append("\n# |    Test    | Time,ms");
+            testInfoBuilder.append("\n------------------------");
+            int count = 0;
             for (Map.Entry testTime : testTimeEntry) {
-                final Long time = (Long) testTime.getValue();
-                totalTime += time;
-                logger.info("{} - {} ms", testTime.getKey(), time);
+                testInfoBuilder.append("\n").append(++count).append(". ").append(testTime.getKey()).append(" - ").append(testTime.getValue());
             }
-            logger.info("Total time: {} ms", totalTime);
+            logger.info(testInfoBuilder.toString());
         }
-
-        ;
     };
 
     @Autowired
@@ -78,13 +75,13 @@ public class MealServiceTest {
         assertMatch(service.getAll(USER_ID), MEAL6, MEAL5, MEAL4, MEAL3, MEAL2);
     }
 
-    @Test//(expected = NotFoundException.class)
+    @Test
     public void deleteNotFound() {
         exception.expect(NotFoundException.class);
         service.delete(1, USER_ID);
     }
 
-    @Test//(expected = NotFoundException.class)
+    @Test
     public void deleteNotOwn() {
         exception.expect(NotFoundException.class);
         service.delete(MEAL1_ID, ADMIN_ID);
@@ -106,13 +103,13 @@ public class MealServiceTest {
         assertMatch(actual, ADMIN_MEAL1);
     }
 
-    @Test//(expected = NotFoundException.class)
+    @Test
     public void getNotFound() {
         exception.expect(NotFoundException.class);
         service.get(1, USER_ID);
     }
 
-    @Test//(expected = NotFoundException.class)
+    @Test
     public void getNotOwn() {
         exception.expect(NotFoundException.class);
         service.get(MEAL1_ID, ADMIN_ID);
@@ -126,7 +123,7 @@ public class MealServiceTest {
         assertMatch(actual, updated);
     }
 
-    @Test//(expected = NotFoundException.class)
+    @Test
     public void updateNotFound() {
         exception.expect(NotFoundException.class);
         service.update(MEAL1, ADMIN_ID);
