@@ -1,11 +1,26 @@
 package ru.javawebinar.topjava.service.datajpa;
 
+import org.junit.Test;
 import org.springframework.test.context.ActiveProfiles;
+import ru.javawebinar.topjava.MealTestData;
+import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserServiceTest;
+import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import static ru.javawebinar.topjava.Profiles.DATAJPA;
-import static ru.javawebinar.topjava.Profiles.JPA_DATAJPA;
+import static ru.javawebinar.topjava.UserTestData.*;
 
-@ActiveProfiles({JPA_DATAJPA, DATAJPA})
+@ActiveProfiles({DATAJPA})
 public class DataJpaUserServiceTest extends UserServiceTest {
+    @Test
+    public void testGetWithMeals() throws Exception {
+        User user = service.getWithMeals(USER_ID);
+        assertMatch(user, USER);
+        MealTestData.assertMatch(user.getMeals(), MealTestData.MEALS);
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void testGetWithMealsNotFound() throws Exception {
+        service.getWithMeals(1);
+    }
 }

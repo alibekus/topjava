@@ -1,11 +1,13 @@
 package ru.javawebinar.topjava;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 public class Profiles {
     public static final String
             JDBC = "jdbc",
             JPA = "jpa",
-            DATAJPA = "datajpa",
-            JPA_DATAJPA = "jpa,datajpa";
+            DATAJPA = "datajpa";
 
     public static final String REPOSITORY_IMPLEMENTATION = DATAJPA;
 
@@ -26,5 +28,9 @@ public class Profiles {
                 throw new IllegalStateException("Could not find DB driver");
             }
         }
+    }
+
+    public static Object dateTimeConverter(LocalDateTime dateTime) {
+        return Profiles.getActiveDbProfile().equals(Profiles.HSQL_DB) ? Timestamp.valueOf(dateTime) : dateTime;
     }
 }

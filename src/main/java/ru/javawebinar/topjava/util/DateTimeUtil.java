@@ -1,8 +1,12 @@
 package ru.javawebinar.topjava.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
+import ru.javawebinar.topjava.Profiles;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -11,6 +15,7 @@ import java.time.temporal.ChronoUnit;
 
 public class DateTimeUtil {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final Logger LOGGER = LoggerFactory.getLogger(DateTimeUtil.class);
 
     // HSQLDB doesn't support LocalDate.MIN/MAX
     private static final LocalDate MIN_DATE = LocalDate.of(1, 1, 1);
@@ -23,11 +28,13 @@ public class DateTimeUtil {
         return ldt == null ? "" : ldt.format(DATE_TIME_FORMATTER);
     }
 
-    public static @Nullable LocalDate parseLocalDate(@Nullable String str) {
+    public static @Nullable
+    LocalDate parseLocalDate(@Nullable String str) {
         return StringUtils.isEmpty(str) ? null : LocalDate.parse(str);
     }
 
-    public static @Nullable LocalTime parseLocalTime(@Nullable String str) {
+    public static @Nullable
+    LocalTime parseLocalTime(@Nullable String str) {
         return StringUtils.isEmpty(str) ? null : LocalTime.parse(str);
     }
 
@@ -37,6 +44,10 @@ public class DateTimeUtil {
 
     public static LocalDateTime getEndExclusive(LocalDate localDate) {
         return startOfDay(localDate != null ? localDate.plus(1, ChronoUnit.DAYS) : MAX_DATE);
+    }
+
+    public static Object converter(LocalDateTime dateTime) {
+        return Profiles.getActiveDbProfile().equals(Profiles.HSQL_DB) ? Timestamp.valueOf(dateTime) : dateTime;
     }
 
     private static LocalDateTime startOfDay(LocalDate localDate) {
