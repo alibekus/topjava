@@ -62,7 +62,7 @@ public class MealRestControllerTest extends AbstractControllerTest {
                 SecurityUtil.authUserId());
         final List<MealTo> tos = MealsUtil.getTos(betweenDates, MealsUtil.DEFAULT_CALORIES_PER_DAY);
         mockMvc.perform(MockMvcRequestBuilders
-                .get(REST_URL + "between?startDateTime=2015-05-30T00:00&endDateTime=2015-05-30T23:59"))
+                .get(REST_URL + "between?startDate=2015-05-30&startTime=00:00&endDate=2015-05-30&endTime=23:59"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
