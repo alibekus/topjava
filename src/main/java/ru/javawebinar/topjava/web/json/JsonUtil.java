@@ -23,7 +23,6 @@ public class JsonUtil {
         try {
             return getMapper().readValue(json, clazz);
         } catch (IOException e) {
-            e.printStackTrace();
             throw new IllegalArgumentException("Invalid read from JSON:\n'" + json + "'", e);
         }
     }

@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javawebinar.topjava.MealTestData.*;
 import static ru.javawebinar.topjava.TestUtil.readFromJson;
+import static ru.javawebinar.topjava.util.MealsUtil.getTos;
 
 public class MealRestControllerTest extends AbstractControllerTest {
 
@@ -47,7 +48,7 @@ public class MealRestControllerTest extends AbstractControllerTest {
 
     @Test
     void getAll() throws Exception {
-        final List<MealTo> tos = MealsUtil.getTos(MEALS, MealsUtil.DEFAULT_CALORIES_PER_DAY);
+        final List<MealTo> tos = getTos(MEALS, MealsUtil.DEFAULT_CALORIES_PER_DAY);
         mockMvc.perform(MockMvcRequestBuilders.get(REST_URL))
                 .andExpect(status().isOk())
                 .andDo(print())
@@ -56,17 +57,24 @@ public class MealRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    void getBetween() throws Exception {
+    void filter() throws Exception {
         final List<Meal> betweenDates = mealService.getBetweenDates(LocalDate.of(2015, 05, 30),
                 LocalDate.of(2015, 05, 30),
                 SecurityUtil.authUserId());
-        final List<MealTo> tos = MealsUtil.getTos(betweenDates, MealsUtil.DEFAULT_CALORIES_PER_DAY);
+        final List<MealTo> tos = getTos(betweenDates, MealsUtil.DEFAULT_CALORIES_PER_DAY);
         mockMvc.perform(MockMvcRequestBuilders
-                .get(REST_URL + "between?startDate=2015-05-30&startTime=00:00&endDate=2015-05-30&endTime=23:59"))
+                .get(REST_URL + "filter?startDate=2015-05-30&startTime=00:00&endDate=2015-05-30&endTime=23:59"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(contentJson(tos));
+    }
+
+    @Test
+    void filterAll() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(REST_URL + "filter?startDate=&endTime="))
+                        .andExpect(status().isOk())
+                        .andExpect(contentJson(getTos(MEALS, MealsUtil.DEFAULT_CALORIES_PER_DAY)));
     }
 
     @Test
