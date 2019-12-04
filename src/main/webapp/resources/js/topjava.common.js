@@ -35,7 +35,7 @@ function deleteRow(id) {
     }
 }
 
-function updateTable() {
+function updateTable(data) {
     context.datatableApi.clear().rows.add(data).draw();
 }
 

@@ -12,7 +12,6 @@
 <div class="jumbotron pt-4">
     <div class="container">
         <h3 class="text-center"><spring:message code="meal.title"/></h3>
-        <%--https://getbootstrap.com/docs/4.0/components/card/--%>
         <div class="card border-dark">
             <div class="card-body pb-0">
                 <form id="filter">
@@ -37,7 +36,11 @@
                 </form>
             </div>
             <div class="card-footer text-right">
-                <button class="btn btn-primary" onclick="updateFilteredTable()">
+                <button class="btn btn-danger" onclick="clearFilter()">
+                    <span class="fa fa-remove"></span>
+                    <spring:message code="common.cancel"/>
+                </button>
+                <button class="btn btn-primary" onclick="filterTable()">
                     <span class="fa fa-filter"></span>
                     <spring:message code="meal.filter"/>
                 </button>
@@ -50,7 +53,7 @@
         </button>
         <table class="table table-striped" id="datatable">
             <thead>
-        <tr>
+            <tr>
                 <th><spring:message code="meal.dateTime"/></th>
                 <th><spring:message code="meal.description"/></th>
                 <th><spring:message code="meal.calories"/></th>
@@ -69,7 +72,7 @@
                     </td>
                     <td>${meal.description}</td>
                     <td>${meal.calories}</td>
-                    <td><a><span class="fa fa-pencil"></span></a></td>
+                    <td><a onclick=""><span class="fa fa-pencil"></span></a></td>
                     <td><a onclick="deleteRow(${meal.id})"><span class="fa fa-remove"></span></a></td>
                 </tr>
             </c:forEach>
@@ -87,20 +90,17 @@
             <div class="modal-body">
                 <form id="detailsForm">
                     <input type="hidden" id="id" name="id">
-    
                     <div class="form-group">
                         <label for="dateTime" class="col-form-label"><spring:message code="meal.dateTime"/></label>
                         <input type="datetime-local" class="form-control" id="dateTime" name="dateTime"
                                                                placeholder="<spring:message code="meal.dateTime"/>">
                     </div>
-    
                     <div class="form-group">
                         <label for="description" class="col-form-label"><spring:message
                             code="meal.description"/></label>
                         <input type="text" class="form-control" id="description" name="description"
                                                                placeholder="<spring:message code="meal.description"/>">
                     </div>
-    
                     <div class="form-group">
                         <label for="calories" class="col-form-label"><spring:message code="meal.calories"/></label>
                         <input type="number" class="form-control" id="calories" name="calories" placeholder="1000">
