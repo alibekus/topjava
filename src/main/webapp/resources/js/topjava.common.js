@@ -2,6 +2,18 @@ var context, form;
 
 function makeEditable(ctx) {
     context = ctx;
+    context.datatableApi = $("#datatable").DataTable(
+        $.extend(true, ctx.opts,
+            {
+                "ajax": {
+                    "url": context.ajaxUrl,
+                        "dataSrc": ""
+                },
+                "paging": false,
+                    "info": true
+            }
+        )
+    )
     form = $('#detailsForm');
     $(document).ajaxError(function (event, jqXHR, options, jsExc) {
         failNoty(jqXHR);
@@ -21,7 +33,9 @@ function updateRow(id) {
     $("#modalTitle").html(i18n["editTitle"]);
     $.get(context.ajaxUrl + id, function (data) {
         $.each(data, function (key, value) {
-            form.find("input[name='" + key + "']").val(value);
+            form.find("input[name='" + key + "']").val(
+                key === "dateTime" ? formatDate(value) : value
+            );
         });
         $('#editRow').modal();
     });
@@ -93,4 +107,8 @@ function renderDeleteBtn(data, type, row) {
     if (type === "display") {
         return "<a onclick='deleteRow(" + row.id + ");'><span class='fa fa-remove'></span></a>";
     }
+}
+
+function formatDate(date) {
+    return date.replace('T', ' ').substr(0, 16);
 }
