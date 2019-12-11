@@ -15,7 +15,7 @@ function clearFilter() {
 
 $(function () {
     makeEditable({
-        "ajaxUrl": mealAjaxUrl,
+        ajaxUrl: mealAjaxUrl,
         opts: {
             "columns": [
                 {

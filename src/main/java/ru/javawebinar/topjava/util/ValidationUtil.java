@@ -76,6 +76,14 @@ public class ValidationUtil {
         }
     }
 
+    public static <T,V> void validateGroup(T bean, Class<V> constraint) {
+        // https://alexkosarev.name/2018/07/30/bean-validation-api/
+        Set<ConstraintViolation<T>> violations = validator.validate(bean, constraint);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+    }
+
     public static ResponseEntity<String> getStringResponseEntity(BindingResult result) {
         if (result.hasErrors()) {
             StringJoiner joiner = new StringJoiner("<br>");

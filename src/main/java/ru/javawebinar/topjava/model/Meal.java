@@ -5,6 +5,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.javawebinar.topjava.util.DateTimeUtil;
+import ru.javawebinar.topjava.validation.MealUserConstraint;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -44,7 +45,7 @@ public class Meal extends AbstractBaseEntity {
     @Column(name = "calories", nullable = false)
     private Integer calories;
 
-    @NotNull
+    @NotNull(groups = MealUserConstraint.class)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

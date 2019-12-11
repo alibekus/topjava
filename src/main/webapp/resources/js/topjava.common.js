@@ -2,17 +2,16 @@ var context, form;
 
 function makeEditable(ctx) {
     context = ctx;
+    // https://api.jquery.com/jquery.extend/#jQuery-extend-deep-target-object1-objectN
     context.datatableApi = $("#datatable").DataTable(
-        $.extend(true, ctx.opts,
-            {
-                "ajax": {
-                    "url": context.ajaxUrl,
-                        "dataSrc": ""
-                },
-                "paging": false,
-                    "info": true
-            }
-        )
+        $.extend(true, ctx.opts,{
+            "ajax": {
+                "url": context.ajaxUrl,
+                "dataSrc": ""
+            },
+            "paging": false,
+            "info": true
+        })
     )
     form = $('#detailsForm');
     $(document).ajaxError(function (event, jqXHR, options, jsExc) {

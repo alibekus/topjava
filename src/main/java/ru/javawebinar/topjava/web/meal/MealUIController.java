@@ -26,16 +26,22 @@ public class MealUIController extends AbstractMealController {
     }
 
     @Override
+    @GetMapping(value = "/{id}")
+    public Meal get(@PathVariable int id) {
+        return super.get(id);
+    }
+
+    @Override
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") int id) {
+    public void delete(@PathVariable int id) {
         super.delete(id);
     }
 
     @PostMapping
-    public ResponseEntity<String> createOrUpdate(@Valid MealTo meal, BindingResult result) {
-        ResponseEntity<String> joiner = getStringResponseEntity(result);
-        if (joiner != null) return joiner;
+    public ResponseEntity<String> createOrUpdate(@Valid Meal meal, BindingResult result) {
+        ResponseEntity<String> responseEntity = getStringResponseEntity(result);
+        if (responseEntity != null) return responseEntity;
         if (meal.isNew()) {
             super.create(meal);
         } else {
