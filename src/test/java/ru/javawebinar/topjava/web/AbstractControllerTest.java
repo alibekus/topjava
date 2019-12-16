@@ -16,7 +16,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import ru.javawebinar.topjava.AllActiveProfileResolver;
 import ru.javawebinar.topjava.model.User;
-import ru.javawebinar.topjava.web.json.JsonUtil;
+import ru.javawebinar.topjava.web.json.*;
 
 import javax.annotation.PostConstruct;
 
