@@ -75,4 +75,8 @@ public class ValidationUtil {
             throw new ConstraintViolationException(violations);
         }
     }
+
+    public static String getMessage(Throwable e) {
+        return e.getLocalizedMessage() != null ? e.getLocalizedMessage() : e.getClass().getName();
+    }
 }
