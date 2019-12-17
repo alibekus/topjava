@@ -3,14 +3,20 @@ package ru.javawebinar.topjava.web.json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.javawebinar.topjava.model.User;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import static ru.javawebinar.topjava.web.json.JacksonObjectMapper.getMapper;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 public class JsonUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(JsonUtil.class);
 
     public static <T> List<T> readValues(String json, Class<T> clazz) {
         ObjectReader reader = getMapper().readerFor(clazz);
@@ -42,8 +48,14 @@ public class JsonUtil {
     }
 
     public static <T> String writeAdditionProps(T obj, Map<String, Object> addProps) {
-        Map<String, Object> map = getMapper().convertValue(obj, new TypeReference<Map<String, Object>>() {});
+        Map<String, Object> map = getMapper().convertValue(obj, new TypeReference<Map<String, Object>>() {
+        });
         map.putAll(addProps);
         return writeValue(map);
+    }
+
+    public static String getJsonWithPassword(User user, String password) {
+        StringBuilder jsonBuilder = new StringBuilder(writeValue(user));
+        return jsonBuilder.insert(jsonBuilder.length() - 1, ", \"password\":\"" + password + "\"").toString();
     }
 }

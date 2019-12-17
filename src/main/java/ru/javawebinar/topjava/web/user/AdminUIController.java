@@ -18,9 +18,6 @@ import java.util.List;
 @RequestMapping("/ajax/admin/users")
 public class AdminUIController extends AbstractUserController {
 
-    @Autowired
-    private MessageSource messageSource;
-
     @Override
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public List<User> getAll() {
@@ -42,14 +39,10 @@ public class AdminUIController extends AbstractUserController {
 
     @PostMapping
     public void createOrUpdate(@Valid UserTo userTo) {
-        try {
-             if (userTo.isNew()) {
-                     super.create(userTo);
-             } else {
-                 super.update(userTo, userTo.id());
-             }
-        } catch (DataIntegrityViolationException e) {
-             throw new IllegalRequestDataException(messageSource.getMessage(EXCEPTION_DUPLICATE_EMAIL, null, LocaleContextHolder.getLocale()));
+        if (userTo.isNew()) {
+             super.create(userTo);
+         } else {
+             super.update(userTo, userTo.id());
         }
     }
 
