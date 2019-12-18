@@ -112,4 +112,6 @@ $(function () {
     $('#dateTime').datetimepicker({
         format: 'Y-m-d H:i'
     });
+
+    $.datetimepicker.setLocale(localeCode);
 });

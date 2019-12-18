@@ -128,6 +128,10 @@ public abstract class AbstractControllerTest {
             this.builder = builder;
         }
 
+        public MockHttpServletRequestBuilder getBuilder() {
+            return builder;
+        }
+
         public static RequestWrapper wrap(MockHttpServletRequestBuilder builder) {
             return new RequestWrapper(builder);
         }
@@ -158,7 +162,7 @@ public abstract class AbstractControllerTest {
     }
 
     private String getMessage(String code) {
-        return messageUtil.getMessage(code, Locale.ENGLISH);
+        return messageUtil.getMessage(code, MessageUtil.RU_LOCALE);
     }
 
     public ResultMatcher errorType(ErrorType type) {

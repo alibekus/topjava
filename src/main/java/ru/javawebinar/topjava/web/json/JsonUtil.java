@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import static ru.javawebinar.topjava.web.json.JacksonObjectMapper.getMapper;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 public class JsonUtil {
 
