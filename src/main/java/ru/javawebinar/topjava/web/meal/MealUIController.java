@@ -39,7 +39,7 @@ public class MealUIController extends AbstractMealController {
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void createOrUpdate(@Validated(View.Web.class) Meal meal, BindingResult result) {
+    public void createOrUpdate(@Validated(View.Web.class) Meal meal) {
         if (meal.isNew()) {
             super.create(meal);
         } else {
