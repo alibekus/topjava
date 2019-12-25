@@ -9,7 +9,7 @@
     <meta name="_csrf_header" content="${_csrf.headerName}"/>
 
     <title><spring:message code="app.title"/></title>
-    <base href="${pageContext.request.contextPath}/"/>
+    <base href="${pageContext.request.contextPath}"/>
 
     <link rel="stylesheet" href="resources/css/style.css">
     <link rel="stylesheet" href="webjars/bootstrap/4.4.0/dist/css/bootstrap.min.css">
